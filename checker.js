@@ -16,11 +16,16 @@ Include these tags at the end of the Body
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="./js/checker.js"></script>
 
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//C:/Users/jta/Work/Perso/checker/checker.js"></script>
+
 */
 // Globals
 var Checker = Checker || {};
 
 
+// Local file call is better
+/*
 $(document).ready(function() {
 	var options = {
 		vars_tracking : "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name",
@@ -28,6 +33,7 @@ $(document).ready(function() {
 	};
 	Checker.init(options);
 });
+*/
 
 
 // this
