@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.0
+ * Version : 1.5
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -19,13 +19,9 @@ Include these tags at the end of the Body
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="//C:/Users/jta/Work/Perso/checker/checker.js"></script>
 
-*/
-// Globals
-var Checker = Checker || {};
-
-
+<script>
 // Local file call is better
-/*
+
 $(document).ready(function() {
 	var options = {
 		vars_tracking : "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name",
@@ -33,15 +29,23 @@ $(document).ready(function() {
 	};
 	Checker.init(options);
 });
+
+</script>
 */
 
+// Globals
+var Checker = Checker || {};
 
 // this
 Checker = {
 	init : function(options) {
 		console.info("init Checker");
-		this.checkReporting(options);
-
+		if (options.responsive) {
+			this.checkResponsive(options);
+		}
+		else {
+			this.checkReporting(options);
+		}
 	},
 
 	/**
@@ -58,6 +62,7 @@ Checker = {
 
 		console.group("2) Table Tr Td img");
 		console.info("Count");
+		console.warn("TODO : Responsive NL Count not reliable !")
 		console.log("<table> : "+ this.countTable() +" times");
 		console.log("<tr> : "+ this.countTr() +" times");
 		console.log("<td> : "+ this.countTd() +" times");
@@ -86,7 +91,7 @@ Checker = {
 
 		console.group("7) td > img style");
 		console.info("td with img should have no style ; and img should have display:block");
-		this.checkTdImgStyle();
+		this.checkTdImgStyle(options);
 		console.groupEnd();
 
 		console.group("8) table > tr > td size");
@@ -100,6 +105,103 @@ Checker = {
 		this.checkTableStyle(options);
 		console.groupEnd();
 
+	},
+
+	/**
+	 * Check for NL Responsive specific rules
+	 *
+	 */
+	checkResponsive : function(options) {
+		console.group("Check Responsive");
+			console.group("1) DTD strict, Links and Tag");
+			console.info("Tag Tracking '"+options.vars_tracking+"'");
+
+			console.log("Count " + this.countSpecialLink() + " special links <a> times.");
+			console.log("Count " + this.countTagTracking(options.vars_tracking) +" Tag Tracking times.");
+			console.log("Count " + this.countLink() + " Links <a> times.");
+
+			this.checkDTD(options);
+			this.checkMeta(options);
+			console.groupEnd();
+
+			console.group("2) Table Tr Td img");
+			console.info("Count");
+			console.log("<table> : "+ this.countTable() +" times");
+			console.log("<tr> : "+ this.countTr() +" times");
+			console.log("<td> : "+ this.countTd() +" times");
+			console.log("There are : "+ this.countImg(options) +" different images ; check your folder for the unused one!");
+			console.groupEnd();
+
+			console.group("3) Td & img sizes");
+			console.info("td should have the same size as their img content");
+			this.displayTdAndImgSize(options);
+			console.groupEnd();
+
+			console.group("4) img alt");
+			console.info("img should have an alt defined, unless it is a decoration, separator, blank space");
+			this.checkImgAlt();
+			console.groupEnd();
+
+			console.group("5) td > a style");
+			console.info("td with link and text should have style");
+			this.checkTdStyle();
+			console.groupEnd();
+
+			console.group("6) a style");
+			console.info("link should have text-decoration and color defined");
+			this.checkLinkStyle();
+			console.groupEnd();
+
+			console.group("7) td > img style");
+			console.info("td with img should have no style ; and img should have display:block");
+			this.checkTdImgStyle(options);
+			console.groupEnd();
+
+			console.group("8) table > tr > td size");
+			console.warn("This check may be not reliable yet for deep table structure. Check yourself !");
+			console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
+			this.checkTableSize(options);
+			console.groupEnd();
+
+			console.group("9) table");
+			console.info("all table should have cellpadding='0' cellspacing='0' border='0'");
+			this.checkTableStyle(options);
+			console.groupEnd();
+
+			console.group("10) blank 20px security");
+			this.rwd_blank_security_NL(options);
+			console.groupEnd();
+
+		console.groupEnd();
+	},
+
+
+	checkDTD : function(options) {
+		var dtd = {};
+		dtd.dtd = document.doctype;
+		dtd.name = document.doctype.name;
+		dtd.publicId = document.doctype.publicId;
+		dtd.systemId = document.doctype.systemId;
+
+		// html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+		if ((dtd.name != "html") || (dtd.publicId != "-//W3C//DTD XHTML 1.0 Strict//EN") || (dtd.systemId != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")) {
+			console.warn("DTD not correct !");
+			console.log("<!DOCTYPE " + dtd.name + " PUBLIC \"" + dtd.publicId + "\" \"" + dtd.systemId + "\">");
+			console.info("DTD should be : ");
+			console.log('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+		}
+	},
+
+	// TODO
+	checkMeta: function(options) {
+		$("meta").each(function() {
+			if (this.name == "viewport") {
+				console.info(this);
+			}
+			else {
+				console.log(this);
+			}
+		});
 	},
 
 	/**
@@ -175,6 +277,7 @@ Checker = {
 		});
 
 		$("table").each(function(index) {
+
 			if ($(this).attr("width") !== "100%") {
 
 				// table with one tr
@@ -234,16 +337,62 @@ Checker = {
 		$.each(tables, function(index, value) {
 			console.group("Table "+index+ " of width='"+value.width+"'");
 
-			if ( value["width"] != value["td_per_tr_width"]) {
-				console.warn("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
+			if (options.responsive) {
+				if ( value["width"] == 1) {
+					console.info(" ------######## Table with the 1px² technics #######------")
+				}
+				else {
+					if ( parseInt(value["width"]) - parseInt(value["td_per_tr_width"]) == 20) {
+						console.warn("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"] + ". Check if it is a Table alignement for RWD, with 20px blank space security.");
+						console.dir(value);
+					}
+					else {
+						console.info("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
+					}
+				}
 			}
 			else {
-				console.info("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
+				if ( value["width"] != value["td_per_tr_width"]) {
+					console.warn("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
+				}
+				else {
+					console.info("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
+				}
 			}
 
 			console.groupEnd();
 		});
 
+	},
+
+	/**
+	 * compute and display if there are 20px blank security in a
+	 * Side-by-side tables layout.
+	 *
+	 */
+	rwd_blank_security_NL : function(options) {
+		$("td").each(function(index) {
+			console.group("td "+index+")");
+
+			var $td = $(this);
+			ci($td.attr("width"));
+			var children = $(this).children();
+			var children_width = 0;
+
+			$(children).each(function(i) {
+				if ($(this).get(0).tagName == "TABLE") {
+					children_width += parseInt($(this).attr("width"));
+				}
+			});
+
+			if (!isNaN(children_width) && children_width != 0) {
+				var blank_security = parseInt($td.attr("width")) - parseInt(children_width);
+				ci("There are " + blank_security + "px left as blank space security.");
+			}
+
+			//cl(children_width);
+			console.groupEnd();
+		});
 	},
 
 	/**
@@ -433,7 +582,7 @@ Checker = {
 	 * display:block;
 	 * @return void
 	 */
-	checkTdImgStyle : function() {
+	checkTdImgStyle : function(options) {
 
 		var cssText = "";
 		// maybe the regex is not 100% efficient (because of blank space)
@@ -452,13 +601,13 @@ Checker = {
 
 			// td > img
 			if ($(this).parent().get(0).tagName == "TD") {
-				if ($(this).parent().get(0).style.cssText !== "") {
+				if ($(this).parent().get(0).style.cssText !== "" && !options.responsive) {
 					console.warn("td with img "+ $(this).attr("src") +" should not have any style");
 				}
 			}
 
 			// td > a > img
-			if ($(this).parent().parent().get(0).tagName == "TD") {
+			if ($(this).parent().parent().get(0).tagName == "TD" && !options.responsive) {
 				if ($(this).parent().parent().get(0).style.cssText !== "") {
 					console.warn("td with img "+ $(this).attr("src") +" should not have any style");
 				}
