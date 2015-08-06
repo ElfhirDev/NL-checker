@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.5
+ * Version : 1.6
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -25,7 +25,9 @@ Include these tags at the end of the Body
 $(document).ready(function() {
 	var options = {
 		vars_tracking : "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name",
-		verbose : false
+		verbose : false,
+		responsive : false,
+		target_blank : false
 	};
 	Checker.init(options);
 });
@@ -58,6 +60,14 @@ Checker = {
 		console.log("Count " + this.countSpecialLink() + " special links <a> times.");
 		console.log("Count " + this.countTagTracking(options.vars_tracking) +" Tag Tracking times.");
 		console.log("Count " + this.countLink() + " Links <a> times.");
+
+		if (options.target_blank) {
+			console.group("Target Blank")
+			console.log("Count " + this.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
+			console.log("Link(s) zero-based index missing are " + this.countTargetBlank().missing_index);
+			console.groupEnd();
+		}
+
 		console.groupEnd();
 
 		console.group("2) Table Tr Td img");
@@ -119,6 +129,13 @@ Checker = {
 			console.log("Count " + this.countSpecialLink() + " special links <a> times.");
 			console.log("Count " + this.countTagTracking(options.vars_tracking) +" Tag Tracking times.");
 			console.log("Count " + this.countLink() + " Links <a> times.");
+
+			if (options.target_blank) {
+				console.group("Target Blank")
+				console.log("Count " + this.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
+				console.log("Link(s) zero-based index missing are " + this.countTargetBlank().missing_index);
+				console.groupEnd();
+			}
 
 			this.checkDTD(options);
 			this.checkMeta(options);
@@ -410,6 +427,24 @@ Checker = {
 			}
 		});
 		return count;
+	},
+
+	/**
+	 * count the number of <a> with attribute target, with the value _blank
+	 * Important for some NLs, for instance Biotherm or Lancôme one.
+	 * @return object
+	 */
+	countTargetBlank : function() {
+		var links = {count : 0, missing_index : []};
+		$("a").each(function(i) {
+			if (undefined !=  $(this).attr("target") && "_blank" == $(this).attr("target") ) {
+				links.count++;
+			}
+			else {
+				links.missing_index.push(i);
+			}
+		});
+		return links;
 	},
 
 	/**
