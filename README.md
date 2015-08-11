@@ -5,6 +5,12 @@ This checker may be not complete. I (We) can improve it !
 Stable for static
 Currently improved the Responsive checking
 
+## Version 1.7
+
+- Add Checking for wrong URL paramaters
+
+- Cleaning, some little refactors
+
 ## Version 1.6
 
 - Add *target='_blank'* checking, merging into section 1)

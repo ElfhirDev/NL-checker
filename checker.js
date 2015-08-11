@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.6
+ * Version : 1.7
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -58,8 +58,9 @@ Checker = {
 		console.group("1) Links and Tag");
 		console.info("Tag Tracking '"+options.vars_tracking+"'");
 		console.log("Count " + this.countSpecialLink() + " special links <a> times.");
-		console.log("Count " + this.countTagTracking(options.vars_tracking) +" Tag Tracking times.");
+		console.log("Count " + this.countTagTracking(options) +" Tag Tracking times.");
 		console.log("Count " + this.countLink() + " Links <a> times.");
+		this.wrongTagTracking(options);
 
 		if (options.target_blank) {
 			console.group("Target Blank")
@@ -127,8 +128,9 @@ Checker = {
 			console.info("Tag Tracking '"+options.vars_tracking+"'");
 
 			console.log("Count " + this.countSpecialLink() + " special links <a> times.");
-			console.log("Count " + this.countTagTracking(options.vars_tracking) +" Tag Tracking times.");
+			console.log("Count " + this.countTagTracking(options) +" Tag Tracking times.");
 			console.log("Count " + this.countLink() + " Links <a> times.");
+			this.wrongTagTracking(options);
 
 			if (options.target_blank) {
 				console.group("Target Blank")
@@ -416,17 +418,99 @@ Checker = {
 	 * count the number of <a>
 	 * @return integer
 	 */
-	countTagTracking : function(vars_tracking) {
+	countTagTracking : function(options) {
 		var count = 0;
 		$("a").each(function(index) {
 
-			var rg_vars_tracking = new RegExp(vars_tracking);
+			var rg_vars_tracking = new RegExp(options.vars_tracking);
 
 			if (rg_vars_tracking.test($(this).attr("href"))) {
 				++count;
 			}
+
+			if (options.verbose === true) {
+				console.log($(this).attr("href"));
+			}
+
 		});
 		return count;
+	},
+
+	/**
+	 * Return an object containing URI parameters
+	 *
+	 * return {...{param : value}}
+	 */
+	getParmsFromURL : function(url) {
+	    var parms = {}, pieces, parts, i;
+	    var hash = url.lastIndexOf("#");
+	    if (hash !== -1) {
+	        // remove hash value
+	        url = url.slice(0, hash);
+
+	        console.info(url);
+	    }
+	    var question = url.lastIndexOf("?");
+	    if (question !== -1) {
+	        url = url.slice(question + 1);
+	        pieces = url.split("&");
+	        for (i = 0; i < pieces.length; i++) {
+	            parts = pieces[i].split("=");
+	            if (parts.length < 2) {
+	                parts.push("");
+	            }
+	            parms[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+	        }
+	    }
+	    return parms;
+	},
+
+	/**
+	 * Based on the vars_tracking,
+	 * check if there are tags not changed, and warn it.
+	 *
+	 */
+	wrongTagTracking : function(options) {
+		var url = {};
+		var params = vars_tracking.split("&");
+		var params_tag = {};
+
+		$.each(params, function(el, value) {
+			var couple = value.split("=");
+
+			params_tag[couple[0]] = couple[1];
+
+		});
+
+		$("a").each(function(index) {
+
+			var rg_vars_tracking = new RegExp(options.vars_tracking);
+			var rg_mailto = new RegExp("mailto:");
+			var rg_include = new RegExp("<%@ include");
+			var rg_cryptedId = new RegExp("cryptedId");
+			var rg_hash = new RegExp("^#");
+
+			if (	!rg_mailto.test($(this).attr("href")) &&
+						!rg_include.test($(this).attr("href")) &&
+						!rg_hash.test($(this).attr("href")) &&
+						!rg_cryptedId.test($(this).attr("href"))) {
+
+				if (!rg_vars_tracking.test($(this).attr("href"))) {
+					url = Checker.getParmsFromURL($(this).attr("href"));
+
+					if (url.utm_source !== undefined && url.utm_source != params_tag.utm_source) {
+						console.warn("link "+ index + " has not the good utm_source.");
+					}
+					if (url.utm_medium !== undefined && url.utm_medium != params_tag.utm_medium) {
+						console.warn("link "+ index + " has not the good utm_medium.");
+					}
+					if (url.utm_campaign !== undefined && url.utm_campaign != params_tag.utm_campaign) {
+						console.warn("link "+ index + " has not the good utm_campaign.");
+					}
+				}
+			}
+
+		});
 	},
 
 	/**
