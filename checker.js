@@ -472,7 +472,7 @@ Checker = {
 	 */
 	wrongTagTracking : function(options) {
 		var url = {};
-		var params = vars_tracking.split("&");
+		var params = options.vars_tracking.split("&");
 		var params_tag = {};
 
 		$.each(params, function(el, value) {
