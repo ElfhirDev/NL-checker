@@ -43,7 +43,6 @@ TODO :
 #3 Think of a total height of block next to an image equal to this image's height
 
 #4 Rewrite 20px check (take account for gmail trick)
-#5 1-index based
 
 
 */
@@ -571,7 +570,7 @@ Checker = {
 	 * @return void
 	 */
 	 displayTdAndImgSize : function(options) {
-	 	var warning = false;
+	 	var warning = false, warning_width = false, warning_height = false;
 	 	$("img").each(function(index)  {
 
 	 		if (options.verbose === true) {
@@ -598,8 +597,36 @@ Checker = {
 	 		}
 
 	 		if (warning) {
-	 			console.warn("size differs or undefined for img " + parseInt(1+index) +", with src : "+ $(this).attr("src") );
+
+	 			if ($(this).parent().get(0).tagName == "A") {
+	 				if ($(this).parent().parent().get(0).align != "center") {
+	 					warning_width = true;
+	 				}
+	 				if ($(this).parent().parent().get(0).vAlign != "middle") {
+	 					warning_height = true;
+	 				}
+	 			}
+	 			else if ($(this).parent().get(0).tagName == "TD") {
+	 				if ($(this).parent().get(0).align != "center") {
+	 					warning_width = true;
+	 				}
+	 				if ($(this).parent().get(0).vAlign != "middle") {
+	 					warning_height = true;
+	 				}
+	 			}
+
+	 		}
+
+	 		if (warning) {
+	 			if (warning_width == true) {
+	 				console.warn("Width differs or undefined for img " + parseInt(1+index) +", with src : "+ $(this).attr("src") );
+	 			}
+	 			if (warning_height == true) {
+	 				console.warn("Height differs or undefined for img " + parseInt(1+index) +", with src : "+ $(this).attr("src") );
+	 			}
 	 			warning = false;
+	 			warning_width = false;
+	 			warning_height = false;
 	 		}
 	 	});
 },
