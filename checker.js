@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.8
+ * Version : 1.9
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -37,13 +37,22 @@ $(document).ready(function() {
 
 /*
 
-TODO :
+TO THINK:
 #1 Think about valign : middle for button's text
 #2 Think about valign : top for Title align with the top of an image.
 #3 Think of a total height of block next to an image equal to this image's height
 
-#4 Rewrite 20px check (take account for gmail trick)
 
+TODO
+v2 :
+#1 Add check for spacer with height below 20px with no line-height:1px; font-size: 1px;
+#2 Add check for font-family wrong written, and colors too
+
+V3 :
+#1 after activation with a shortcut, sizes of element on hover like google developer, but only for firebug :-p)
+ or something better, on a layer
+#2 after activation with a shortcut,
+#3 auto correcter !
 
 */
 
@@ -86,47 +95,63 @@ Checker = {
 
 	 	console.group("2) Table Tr Td img");
 	 	console.info("Count");
-	 	console.warn("TODO : Responsive NL Count not reliable !")
 	 	console.log("<table> : "+ this.countTable() +" times");
 	 	console.log("<tr> : "+ this.countTr() +" times");
 	 	console.log("<td> : "+ this.countTd() +" times");
+	 	console.groupCollapsed("<img> click to open");
 	 	console.log("There are : "+ this.countImg(options) +" different images ; check your folder for the unused one!");
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("3) Td & img sizes");
 	 	console.info("td should have the same size as their img content");
+	 	console.groupCollapsed("<td> with <img> that size differs : click to open");
 	 	this.displayTdAndImgSize(options);
 	 	console.groupEnd();
+	 	console.groupEnd();
+
 
 	 	console.group("4) img alt");
 	 	console.info("img should have an alt defined, unless it is a decoration, separator, blank space");
+	 	console.groupCollapsed("<img> with no alt defined : click to open");
 	 	this.checkImgAlt();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
+	 	console.groupCollapsed("<td> with style missing : click to open");
 	 	this.checkTdStyle();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("6) a style");
 	 	console.info("link should have text-decoration and color defined");
+	 	console.groupCollapsed("<a> with style missing : click to open");
 	 	this.checkLinkStyle();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("7) td > img style");
 	 	console.info("td with img should have no style ; and img should have display:block");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTdImgStyle(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
-	 	console.warn("This check may be not reliable yet for deep table structure. Check yourself !");
+	 	console.warn("This check seems to be more and more reliable for deep table structure, but check yourself !");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTableSize(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("9) table");
 	 	console.info("all table should have cellpadding='0' cellspacing='0' border='0'");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTableStyle(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 },
@@ -137,7 +162,8 @@ Checker = {
 	 */
 	 checkResponsive : function(options) {
 	 	console.group("Check Responsive");
-	 	console.group("1) DTD strict, Links and Tag");
+	 	console.group("1) DTD strict, Links, Tag, and Meta (viewport)");
+	 	console.groupCollapsed("click to open");
 	 	console.info("Tag Tracking '"+options.vars_tracking+"'");
 
 	 	console.log("Count " + this.countSpecialLink() + " special links <a> times.");
@@ -155,65 +181,85 @@ Checker = {
 	 	this.checkDTD(options);
 	 	this.checkMeta(options);
 	 	console.groupEnd();
+	 	console.groupEnd();
 
 	 	console.group("2) Table Tr Td img");
+	 	console.groupCollapsed("<img> click to open");
 	 	console.info("Count");
 	 	console.log("<table> : "+ this.countTable() +" times");
 	 	console.log("<tr> : "+ this.countTr() +" times");
 	 	console.log("<td> : "+ this.countTd() +" times");
 	 	console.log("There are : "+ this.countImg(options) +" different images ; check your folder for the unused one!");
 	 	console.groupEnd();
+	 	console.groupEnd();
 
 	 	console.group("3) Td & img sizes");
 	 	console.info("td should have the same size as their img content");
+	 	console.groupCollapsed("<td> with <img> that size differs : click to open");
 	 	this.displayTdAndImgSize(options);
 	 	console.groupEnd();
+	 	console.groupEnd();
+
 
 	 	console.group("4) img alt");
 	 	console.info("img should have an alt defined, unless it is a decoration, separator, blank space");
+	 	console.groupCollapsed("<img> with no alt defined : click to open");
 	 	this.checkImgAlt();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
+	 	console.groupCollapsed("<td> with style missing : click to open");
 	 	this.checkTdStyle();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("6) a style");
 	 	console.info("link should have text-decoration and color defined");
+	 	console.groupCollapsed("<a> with style missing : click to open");
 	 	this.checkLinkStyle();
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("7) td > img style");
 	 	console.info("td with img should have no style ; and img should have display:block");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTdImgStyle(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
-	 	console.warn("This check may be not reliable yet for deep table structure. Check yourself !");
+	 	console.warn("This check seems to be more and more reliable for deep table structure, but check yourself !");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTableSize(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("9) table");
 	 	console.info("all table should have cellpadding='0' cellspacing='0' border='0'");
+	 	console.groupCollapsed("click to open");
 	 	this.checkTableStyle(options);
+	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("10) blank 20px security");
+	 	//console.groupCollapsed("click to open");
 	 	this.rwd_blank_security_NL(options);
-	 	console.groupEnd();
+		//console.groupEnd();
+		console.groupEnd();
 
-	 	console.groupEnd();
-	 },
+		console.groupEnd();
+	},
 
 
-	 checkDTD : function(options) {
-	 	var dtd = {};
-	 	dtd.dtd = document.doctype;
-	 	dtd.name = document.doctype.name;
-	 	dtd.publicId = document.doctype.publicId;
-	 	dtd.systemId = document.doctype.systemId;
+	checkDTD : function(options) {
+		var dtd = {};
+		dtd.dtd = document.doctype;
+		dtd.name = document.doctype.name;
+		dtd.publicId = document.doctype.publicId;
+		dtd.systemId = document.doctype.systemId;
 
 		// html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
 		if ((dtd.name != "html") || (dtd.publicId != "-//W3C//DTD XHTML 1.0 Strict//EN") || (dtd.systemId != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")) {
@@ -403,15 +449,13 @@ Checker = {
 	 * Side-by-side tables layout.
 	 *
 	 */
-	 rwd_blank_security_NL : function(options) {
+	 rwd_blank_security_NL: function(options) {
 	 	$("td").each(function(index) {
 
 
 	 		var $td = $(this);
 
 	 		var td_tables = [];
-
-	 		console.info($td);
 
 	 		//ci($td.attr("width"));
 	 		var children = $(this).children();
@@ -421,7 +465,9 @@ Checker = {
 
 	 			if ($(this).children().get(0) != undefined) {
 	 				if ($(this).get(0).tagName == "TABLE") {
-	 					children_width += parseInt($(this).attr("width"));
+	 					if ($(this).attr("width") != $td.attr("width")) {
+	 						children_width += parseInt($(this).attr("width"));
+	 					}
 	 				}
 	 			}
 
@@ -431,14 +477,28 @@ Checker = {
 	 		if (!isNaN(children_width) && children_width != 0) {
 	 			var blank_security = parseInt($td.attr("width")) - parseInt(children_width);
 
-	 			console.group("td "+parseInt(index+1)+")  >");
-	 			ci("There are " + blank_security + "px left as blank space security.");
+	 			console.group("For td " + parseInt(index + 1) + ")");
+	 			if (blank_security < 20) {
+	 				console.warn("There are " + blank_security + "px left as blank space security.");
+	 			}
+	 			else if (blank_security == 20) {
+	 				ci("There are " + blank_security + "px left as blank space security.");
+	 			}
+	 			else if (blank_security > 20 && blank_security < 60) {
+	 				console.log("There are " + blank_security + "px left as blank space security. Maybe a little too much");
+	 			}
+
+	 			else if (blank_security > 60) {
+	 				console.warn("There are " + blank_security + "px left as blank space security. TOO MUCH");
+	 			}
+
+	 			console.groupEnd();
 	 		}
 
-			//cl(children_width);
-			console.groupEnd();
-		});
-	 },
+	 		//cl(children_width);
+
+	 	});
+},
 
 	/**
 	 * count the number of <a>
@@ -471,25 +531,25 @@ Checker = {
 	 	var parms = {}, pieces, parts, i;
 	 	var hash = url.lastIndexOf("#");
 	 	if (hash !== -1) {
-	        // remove hash value
-	        url = url.slice(0, hash);
+					// remove hash value
+					url = url.slice(0, hash);
 
-	        console.info(url);
-	      }
-	      var question = url.lastIndexOf("?");
-	      if (question !== -1) {
-	      	url = url.slice(question + 1);
-	      	pieces = url.split("&");
-	      	for (i = 0; i < pieces.length; i++) {
-	      		parts = pieces[i].split("=");
-	      		if (parts.length < 2) {
-	      			parts.push("");
-	      		}
-	      		parms[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-	      	}
-	      }
-	      return parms;
-	    },
+					console.info(url);
+				}
+				var question = url.lastIndexOf("?");
+				if (question !== -1) {
+					url = url.slice(question + 1);
+					pieces = url.split("&");
+					for (i = 0; i < pieces.length; i++) {
+						parts = pieces[i].split("=");
+						if (parts.length < 2) {
+							parts.push("");
+						}
+						parms[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+					}
+				}
+				return parms;
+			},
 
 	/**
 	 * Based on the vars_tracking,
