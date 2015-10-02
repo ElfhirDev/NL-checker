@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.7.5
+ * Version : 1.8
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
