@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.9
+ * Version : 1.9.1
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -51,8 +51,7 @@ v2 :
 V3 :
 #1 after activation with a shortcut, sizes of element on hover like google developer, but only for firebug :-p)
  or something better, on a layer
-#2 after activation with a shortcut,
-#3 auto correcter !
+#2 after activation with a shortcut ,
 
 */
 
@@ -630,8 +629,11 @@ Checker = {
 	 * @return void
 	 */
 	 displayTdAndImgSize : function(options) {
-	 	var warning = false, warning_width = false, warning_height = false;
+	 	var warning, warning_width , warning_height;
 	 	$("img").each(function(index)  {
+	 		warning = false;
+	 		warning_width = false;
+	 		warning_height = false;
 
 	 		if (options.verbose === true) {
 	 			console.info("img src : " +$(this).attr("src")+ " & alt : " + $(this).attr("alt"));

@@ -5,6 +5,22 @@ This checker may be not complete. I (We) can improve it !
 Stable for static
 Currently improved the Responsive checking
 
+## Version 1.9.1
+
+- Little improvement on displayTdAndImgSize()
+
+## Version 1.9
+
+- rewrite 20px blank security
+
+## Version 1.8
+
+- rewrite displayTdAndImgSize() for taking into account of parent's attribute center or middle
+
+## Version 1.7.5
+
+- Modify 20px check ; 1-index based error displaying
+
 ## Version 1.7
 
 - Add Checking for wrong URL paramaters
