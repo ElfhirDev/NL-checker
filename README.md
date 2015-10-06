@@ -5,6 +5,22 @@ This checker may be not complete. I (We) can improve it !
 Stable for static
 Currently improved the Responsive checking
 
+# Roadmap :
+
+V2
+-1 Add check for font-family wrong written, and colors too
+
+V3 :
+- 1 after activation with a shortcut, sizes of element on hover are displayed
+- 2 adapt the script for being a real firefox plugin !
+
+V4 :
+- Propose to download an autocorrected file, nearly perfect.
+
+## Version 1.9.2
+
+-	checkVerticalSpacer() ; check for td height spacer without font-size:1px; line-height: 1px;
+
 ## Version 1.9.1
 
 - Little improvement on displayTdAndImgSize()
@@ -59,5 +75,9 @@ It checks on static NL:
 - 8) Check for Table > tr > td size consistency.
 
 - 9) Check if Table have the right attributes.
+
+- 10) Check for td with height less than 20px have font-size:1px;line-height:1px; (Outlook)
+
+- 11) 20px blank space security in *side-by-side* tables layout (bug Outlook)
 
 ## [Licence : Artistic-2.0] (http://opensource.org/licenses/Artistic-2.0)

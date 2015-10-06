@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.9.1
+ * Version : 1.9.2
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -37,22 +37,17 @@ $(document).ready(function() {
 
 /*
 
-TO THINK:
-#1 Think about valign : middle for button's text
-#2 Think about valign : top for Title align with the top of an image.
-#3 Think of a total height of block next to an image equal to this image's height
+
 
 
 TODO
 v2 :
-#1 Add check for spacer with height below 20px with no line-height:1px; font-size: 1px;
-#2 Add check for font-family wrong written, and colors too
+#1 Add check for font-family wrong written, and colors too
 
 V3 :
 #1 after activation with a shortcut, sizes of element on hover like google developer, but only for firebug :-p)
  or something better, on a layer
-#2 after activation with a shortcut ,
-
+#2 adapt the script for being a real firefox plugin !
 */
 
 
@@ -153,6 +148,14 @@ Checker = {
 	 	console.groupEnd();
 	 	console.groupEnd();
 
+	 	console.group("10) vertical spacer ");
+	 	console.info("td spacer with height less than 20px should have font-size:1px; line-height:1px;");
+	 	console.groupCollapsed("click to open");
+	 	this.checkVerticalSpacer(options);
+	 	console.groupEnd();
+	 	console.groupEnd();
+
+
 	 },
 
 	/**
@@ -244,21 +247,59 @@ Checker = {
 	 	console.groupEnd();
 
 	 	console.group("10) blank 20px security");
-	 	//console.groupCollapsed("click to open");
+	 	console.groupCollapsed("click to open");
 	 	this.rwd_blank_security_NL(options);
-		//console.groupEnd();
-		console.groupEnd();
+	 	console.groupEnd();
+	 	console.groupEnd();
 
-		console.groupEnd();
-	},
+	 	console.group("11) vertical spacer ");
+	 	console.info("td spacer with height less than 20px should have font-size:1px; line-height:1px;");
+	 	console.groupCollapsed("click to open");
+	 	this.checkVerticalSpacer(options);
+	 	console.groupEnd();
+	 	console.groupEnd();
 
+	 },
 
-	checkDTD : function(options) {
-		var dtd = {};
-		dtd.dtd = document.doctype;
-		dtd.name = document.doctype.name;
-		dtd.publicId = document.doctype.publicId;
-		dtd.systemId = document.doctype.systemId;
+	 checkVerticalSpacer : function (options) {
+	 	$("td").each(function(index) {
+	 		if ($(this).get(0) != undefined) {
+	 			if ( $(this).get(0).innerHTML == "&nbsp;") {
+
+	 				if ($(this).attr("height") != undefined ) {
+	 					if ($(this).attr("height") <= 20) {
+	 						if ($(this).get(0).style.fontSize != "1px") {
+	 							console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
+	 						}
+	 						if ($(this).get(0).style.lineHeight != "1px") {
+	 							console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
+	 						}
+	 					}
+	 				}
+	 				else {
+	 					if ($(this).height()<= 20) {
+	 						if ($(this).attr("height") <= 20) {
+	 							if ($(this).get(0).style.fontSize != "1px") {
+	 								console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
+	 							}
+	 							if ($(this).get(0).style.lineHeight != "1px") {
+	 								console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
+	 							}
+	 						}
+	 					}
+	 				}
+
+	 			}
+	 		}
+	 	});
+},
+
+checkDTD : function(options) {
+	var dtd = {};
+	dtd.dtd = document.doctype;
+	dtd.name = document.doctype.name;
+	dtd.publicId = document.doctype.publicId;
+	dtd.systemId = document.doctype.systemId;
 
 		// html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
 		if ((dtd.name != "html") || (dtd.publicId != "-//W3C//DTD XHTML 1.0 Strict//EN") || (dtd.systemId != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")) {
@@ -269,7 +310,7 @@ Checker = {
 		}
 	},
 
-	// TODO
+
 	checkMeta: function(options) {
 		$("meta").each(function() {
 			if (this.name == "viewport") {
