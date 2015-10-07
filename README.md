@@ -17,6 +17,10 @@ V3 :
 V4 :
 - Propose to download an autocorrected file, nearly perfect.
 
+## Version 1.9.3
+
+- wrongTagTracking() improve for detecting repetition of tag
+
 ## Version 1.9.2
 
 -	checkVerticalSpacer() ; check for td height spacer without font-size:1px; line-height: 1px;

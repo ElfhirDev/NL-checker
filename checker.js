@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.9.2
+ * Version : 1.9.3
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -43,6 +43,7 @@ $(document).ready(function() {
 TODO
 v2 :
 #1 Add check for font-family wrong written, and colors too
+#2 Improve check taging : avoid repetition !
 
 V3 :
 #1 after activation with a shortcut, sizes of element on hover like google developer, but only for firebug :-p)
@@ -585,7 +586,12 @@ checkDTD : function(options) {
 						if (parts.length < 2) {
 							parts.push("");
 						}
-						parms[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+						if (parms[decodeURIComponent(parts[0])] === undefined) {
+							parms[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+						}
+						else {
+							parms["double_" + decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+						}
 					}
 				}
 				return parms;
@@ -610,7 +616,7 @@ checkDTD : function(options) {
 
 	 	$("a").each(function(index) {
 
-	 		var rg_vars_tracking = new RegExp(options.vars_tracking);
+	 		var rg_vars_tracking = new RegExp(options.vars_tracking, 'g');
 	 		var rg_mailto = new RegExp("mailto:");
 	 		var rg_include = new RegExp("<%@ include");
 	 		var rg_cryptedId = new RegExp("cryptedId");
@@ -634,6 +640,20 @@ checkDTD : function(options) {
 	 					console.warn("link (one-index based) "+ parseInt(index+1) + " has not the good utm_campaign.");
 	 				}
 	 			}
+	 			else {
+	 				url = Checker.getParmsFromURL($(this).attr("href"));
+
+	 				if ($(this).attr("href").match(rg_vars_tracking).length != 1) {
+	 					console.warn("<a> " + parseInt(index+1) + " has " + $(this).attr("href").match(rg_vars_tracking).length + " Tag Tracking");
+	 				}
+
+
+
+	 				if (url.double_utm_campaign !== undefined || url.double_utm_medium !== undefined || url.double_utm_source !== undefined ) {
+	 					console.warn("<a> " + parseInt(index+1) + " has Tag Tracking in double or repeated !");
+	 				}
+	 			}
+
 	 		}
 
 	 	});
