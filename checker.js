@@ -4,7 +4,7 @@
  * Company : Datawords
  * License : Artistic-2.0 (PERL)
  * Url License	http://opensource.org/licenses/Artistic-2.0
- * Version : 1.9.3
+ * Version : 2.0
  * Usage : Auto check if a Newletter is valid among the criteria chosen.
  *
  */
@@ -25,6 +25,7 @@ Include these tags at the end of the Body
 $(document).ready(function() {
 	var options = {
 		vars_tracking : "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name",
+		strict : false,
 		verbose : false,
 		responsive : false,
 		target_blank : false
@@ -38,12 +39,6 @@ $(document).ready(function() {
 /*
 
 
-
-
-TODO
-v2 :
-#1 Add check for font-family wrong written, and colors too
-#2 Improve check taging : avoid repetition !
 
 V3 :
 #1 after activation with a shortcut, sizes of element on hover like google developer, but only for firebug :-p)
@@ -116,7 +111,7 @@ Checker = {
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
 	 	console.groupCollapsed("<td> with style missing : click to open");
-	 	this.checkTdStyle();
+	 	this.checkTdStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
@@ -135,7 +130,6 @@ Checker = {
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
-	 	console.warn("This check seems to be more and more reliable for deep table structure, but check yourself !");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
 	 	console.groupCollapsed("click to open");
 	 	this.checkTableSize(options);
@@ -214,7 +208,7 @@ Checker = {
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
 	 	console.groupCollapsed("<td> with style missing : click to open");
-	 	this.checkTdStyle();
+	 	this.checkTdStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
@@ -233,7 +227,6 @@ Checker = {
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
-	 	console.warn("This check seems to be more and more reliable for deep table structure, but check yourself !");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
 	 	console.groupCollapsed("click to open");
 	 	this.checkTableSize(options);
@@ -458,17 +451,11 @@ checkDTD : function(options) {
 			console.group("Table "+ ondex + " of width='"+value.width+"'");
 
 			if (options.responsive) {
-				if ( value["width"] == 1) {
-					console.info(" ------######## Table with the 1px² technics #######------")
+				if ( value["width"] == 1 && value["height"] == 1) {
+					console.warn(" ------######## Table with the 1px² technics is dangerous #######------")
 				}
 				else {
-					if ( parseInt(value["width"]) - parseInt(value["td_per_tr_width"]) == 20) {
-						/*console.warn("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"] + ". Check if it is a Table alignement for RWD, with 20px blank space security.");
-						console.dir(value);*/
-					}
-					else {
-						console.info("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
-					}
+					console.info("has "+value.tr["length"]+" tr, with width about "+ value["td_per_tr_width"]);
 				}
 			}
 			else {
@@ -483,7 +470,7 @@ checkDTD : function(options) {
 			console.groupEnd();
 		});
 
-},
+	},
 
 	/**
 	 * compute and display if there are 20px blank security in a
@@ -647,8 +634,6 @@ checkDTD : function(options) {
 	 					console.warn("<a> " + parseInt(index+1) + " has " + $(this).attr("href").match(rg_vars_tracking).length + " Tag Tracking");
 	 				}
 
-
-
 	 				if (url.double_utm_campaign !== undefined || url.double_utm_medium !== undefined || url.double_utm_source !== undefined ) {
 	 					console.warn("<a> " + parseInt(index+1) + " has Tag Tracking in double or repeated !");
 	 				}
@@ -805,7 +790,7 @@ checkDTD : function(options) {
 	 * display if a TD containing a link text have a the style
 	 * @return void
 	 */
-	 checkTdStyle : function() {
+	 checkTdStyle : function(options) {
 
 	 	var rg_img = new RegExp("<img");
 	 	var rg_font_family = new RegExp("font-family");
@@ -853,21 +838,22 @@ checkDTD : function(options) {
 	 				console.log(" ");
 	 				console.groupEnd();
 	 			}
+	 			if (options.strict === true) {
+	 				if (!rg_text_decoration.test(cssText)) {
+	 					console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 					console.info("Text Decoration missing ?");
+	 					console.warn(cssText);
+	 					console.log(" ");
+	 					console.groupEnd();
+	 				}
 
-	 			if (!rg_text_decoration.test(cssText)) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
-	 				console.info("Text Decoration missing ?");
-	 				console.warn(cssText);
-	 				console.log(" ");
-	 				console.groupEnd();
-	 			}
-
-	 			if (!rg_color.test(cssText)) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
-	 				console.info("Color missing ?");
-	 				console.warn(cssText);
-	 				console.log(" ");
-	 				console.groupEnd();
+	 				if (!rg_color.test(cssText)) {
+	 					console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 					console.info("Color missing ?");
+	 					console.warn(cssText);
+	 					console.log(" ");
+	 					console.groupEnd();
+	 				}
 	 			}
 	 		}
 	 	});

@@ -8,14 +8,16 @@ Currently improved the Responsive checking
 # Roadmap :
 
 V2
--1 Add check for font-family wrong written, and colors too
 
 V3 :
-- 1 after activation with a shortcut, sizes of element on hover are displayed
-- 2 adapt the script for being a real firefox plugin !
+- adapt the script for being a real firefox plugin !
 
 V4 :
 - Propose to download an autocorrected file, nearly perfect.
+
+## Version 2.0
+
+- Cleaning, secure features
 
 ## Version 1.9.3
 
