@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<overlay id="sample" 
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<button type="menu-button" label="New">
+  <menupopup>
+    <menuitem label="New Document"/>
+    <menuitem label="New Image"/>
+  </menupopup>
+</button>
+</overlay>
