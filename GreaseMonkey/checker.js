@@ -5,7 +5,7 @@
 // @version     1
 // @grant       none
 // @require     http://code.jquery.com/jquery-1.11.3.min.js
-// @required    http://127.0.0.1:8080/nl/checker/checker.js
+// @require     https://raw.githubusercontent.com/Elfhir/NL-checker/master/GreaseMonkey/checker.js
 // @include     http://127.0.0.1:8080/nl/*
 // ==/UserScript==
 
