@@ -1,58 +1,78 @@
 // ==UserScript==
-// @name        NL-Checker
+// @name        NL-Checker User Script
 // @namespace   NL-Checker
 // @description Script de vérifications Newsletter HTML
-// @version     1
+// @icon        https://github.com/Elfhir/NL-checker/tree/master/GreaseMonkey/skin/logo.png
+// @downloadURL https://github.com/Elfhir/NL-checker/blob/master/GreaseMonkey/checker.user.js
+// @version     2.1
 // @grant       none
 // @require     http://code.jquery.com/jquery-1.11.3.min.js
-// @require     https://raw.githubusercontent.com/Elfhir/NL-checker/master/GreaseMonkey/checker.js
 // @include     http://127.0.0.1:8080/nl/*
+// @include     http://127.0.0.1/nl/*
+// @include     http://localhost/nl/*
 // ==/UserScript==
 
 // Globals
 var Checker = Checker || {};
 
-
+"use strict";
 // this
 Checker = {
 	init : function(options) {
 		console.info("init Checker");
-		this.initGreaseMonkey(options);
+		Checker.initGreaseMonkey(options);
 		if (options.responsive) {
-			this.checkResponsive(options);
+			Checker.checkResponsive(options);
 		}
 		else {
-			this.checkReporting(options);
+			Checker.checkReporting(options);
 		}
+		Checker.resetGreaseMonkey(options);
 	},
 
 	initGreaseMonkey : function(options) {
-		if (sessionStorage.getItem("NL-init") != undefined) {
-			var options.vars_tracking = prompt("Enter vars_Tracking", "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name");
-			sessionStorage.setItem("vars_tracking", options.vars_tracking);
+		console.info("Press pipe (\"|\" to reset the settings, or close the tab.")
+			if (!sessionStorage.getItem("NL-init")) {
 
-			var options.responsive = prompt("Enter responsive (false or true)", false);
-			sessionStorage.setItem("responsive", options.responsive);
+				console.info("first init");
+				options.vars_tracking = window.prompt("Enter vars_Tracking", "utm_source=neolane&utm_medium=emailing_internal&utm_campaign=campaign_name");
+				sessionStorage.setItem("vars_tracking", options.vars_tracking);
 
-			var options.target_blank = prompt("Enter if target blank is required (false or true)", false);
-			sessionStorage.setItem("target_blank", options.target_blank);
+				options.responsive = window.prompt("Enter if the NL is responsive (false or true) :", false);
+				sessionStorage.setItem("responsive", options.responsive);
 
-			var options.strict = prompt("Do you want very strict verification (false or true)", false);
-			sessionStorage.setItem("strict", options.strict);
+				options.target_blank = window.prompt("Enter if target blank is required (false or true) :", false);
+				sessionStorage.setItem("target_blank", options.target_blank);
 
-			var options.verbose = prompt("Do you want a more verbose displaying (false or true)", false);
-			sessionStorage.setItem("verbose", options.verbose);
+				options.strict = window.prompt("Do you want very strict verification (false or true) ?", false);
+				sessionStorage.setItem("strict", options.strict);
 
-			sessionStorage.setItem("NL-init", "initialized");
-		}
-		else {
-			options.vars_tracking = sessionStorage.getItem("vars_tracking");
-			options.responsive = sessionStorage.getItem("responsive");
-			options.target_blank = sessionStorage.getItem("target_blank");
-			options.strict = sessionStorage.getItem("strict");
-			options.verbose = sessionStorage.getItem("verbose");
-		}
-	},
+				options.verbose = window.prompt("Do you want a more verbose displaying (false or true) ?", false);
+				sessionStorage.setItem("verbose", options.verbose);
+
+				sessionStorage.setItem("NL-init", "initialized");
+			}
+			else {
+				options.vars_tracking = sessionStorage.getItem("vars_tracking");
+				options.responsive = sessionStorage.getItem("responsive");
+				options.target_blank = sessionStorage.getItem("target_blank");
+				options.strict = sessionStorage.getItem("strict");
+				options.verbose = sessionStorage.getItem("verbose");
+			}
+		},
+
+		resetGreaseMonkey : function(options) {
+			$(document).on("keydown", function(event) {
+				if (event.which === 54) {
+					sessionStorage.removeItem("NL-init");
+					sessionStorage.removeItem("vars_tracking");
+					sessionStorage.removeItem("responsive");
+					sessionStorage.removeItem("target_blank");
+					sessionStorage.removeItem("strict");
+					sessionStorage.removeItem("verbose");
+				}
+			});
+		},
 
 	/**
 	 * Display reporting of the check, in console
@@ -61,15 +81,15 @@ Checker = {
 	 checkReporting : function(options) {
 	 	console.group("1) Links and Tag");
 	 	console.info("Tag Tracking '"+options.vars_tracking+"'");
-	 	console.log("Count " + this.countSpecialLink() + " special links <a> times.");
-	 	console.log("Count " + this.countTagTracking(options) +" Tag Tracking times.");
-	 	console.log("Count " + this.countLink() + " Links <a> times.");
-	 	this.wrongTagTracking(options);
+	 	console.log("Count " + Checker.countSpecialLink() + " special links <a> times.");
+	 	console.log("Count " + Checker.countTagTracking(options) +" Tag Tracking times.");
+	 	console.log("Count " + Checker.countLink() + " Links <a> times.");
+	 	Checker.wrongTagTracking(options);
 
 	 	if (options.target_blank) {
-	 		console.group("Target Blank")
-	 		console.log("Count " + this.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
-	 		console.log("Link(s) one-based index missing are " + this.countTargetBlank().missing_index);
+	 		console.group("Target Blank");
+	 		console.log("Count " + Checker.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
+	 		console.log("Link(s) one-based index missing are " + Checker.countTargetBlank().missing_index);
 	 		console.groupEnd();
 	 	}
 
@@ -77,18 +97,18 @@ Checker = {
 
 	 	console.group("2) Table Tr Td img");
 	 	console.info("Count");
-	 	console.log("<table> : "+ this.countTable() +" times");
-	 	console.log("<tr> : "+ this.countTr() +" times");
-	 	console.log("<td> : "+ this.countTd() +" times");
+	 	console.log("<table> : "+ Checker.countTable() +" times");
+	 	console.log("<tr> : "+ Checker.countTr() +" times");
+	 	console.log("<td> : "+ Checker.countTd() +" times");
 	 	console.groupCollapsed("<img> click to open");
-	 	console.log("There are : "+ this.countImg(options) +" different images ; check your folder for the unused one!");
+	 	console.log("There are : "+ Checker.countImg(options) +" different images ; check your folder for the unused one!");
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("3) Td & img sizes");
 	 	console.info("td should have the same size as their img content");
 	 	console.groupCollapsed("<td> with <img> that size differs : click to open");
-	 	this.displayTdAndImgSize(options);
+	 	Checker.displayTdAndImgSize(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
@@ -96,54 +116,54 @@ Checker = {
 	 	console.group("4) img alt");
 	 	console.info("img should have an alt defined, unless it is a decoration, separator, blank space");
 	 	console.groupCollapsed("<img> with no alt defined : click to open");
-	 	this.checkImgAlt();
+	 	Checker.checkImgAlt();
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
 	 	console.groupCollapsed("<td> with style missing : click to open");
-	 	this.checkTdStyle(options);
+	 	Checker.checkTdStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("6) a style");
 	 	console.info("link should have text-decoration and color defined");
 	 	console.groupCollapsed("<a> with style missing : click to open");
-	 	this.checkLinkStyle();
+	 	Checker.checkLinkStyle();
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("7) td > img style");
 	 	console.info("td with img should have no style ; and img should have display:block");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTdImgStyle(options);
+	 	Checker.checkTdImgStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTableSize(options);
+	 	Checker.checkTableSize(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("9) table");
 	 	console.info("all table should have cellpadding='0' cellspacing='0' border='0'");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTableStyle(options);
+	 	Checker.checkTableStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("10) vertical spacer ");
 	 	console.info("td spacer with height less than 20px should have font-size:1px; line-height:1px;");
 	 	console.groupCollapsed("click to open");
-	 	this.checkVerticalSpacer(options);
+	 	Checker.checkVerticalSpacer(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 
-	},
+	 },
 
 	/**
 	 * Check for NL Responsive specific rules
@@ -155,37 +175,37 @@ Checker = {
 	 	console.groupCollapsed("click to open");
 	 	console.info("Tag Tracking '"+options.vars_tracking+"'");
 
-	 	console.log("Count " + this.countSpecialLink() + " special links <a> times.");
-	 	console.log("Count " + this.countTagTracking(options) +" Tag Tracking times.");
-	 	console.log("Count " + this.countLink() + " Links <a> times.");
-	 	this.wrongTagTracking(options);
+	 	console.log("Count " + Checker.countSpecialLink() + " special links <a> times.");
+	 	console.log("Count " + Checker.countTagTracking(options) +" Tag Tracking times.");
+	 	console.log("Count " + Checker.countLink() + " Links <a> times.");
+	 	Checker.wrongTagTracking(options);
 
 	 	if (options.target_blank) {
-	 		console.group("Target Blank")
-	 		console.log("Count " + this.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
-	 		console.log("Link(s) one-based index missing are " + this.countTargetBlank().missing_index);
+	 		console.group("Target Blank");
+	 		console.log("Count " + Checker.countTargetBlank().count + " Links with target='_blank', important for Biotherm or Lancôme NLs.");
+	 		console.log("Link(s) one-based index missing are " + Checker.countTargetBlank().missing_index);
 	 		console.groupEnd();
 	 	}
 
-	 	this.checkDTD(options);
-	 	this.checkMeta(options);
+	 	Checker.checkDTD(options);
+	 	Checker.checkMeta(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("2) Table Tr Td img");
 	 	console.groupCollapsed("<img> click to open");
 	 	console.info("Count");
-	 	console.log("<table> : "+ this.countTable() +" times");
-	 	console.log("<tr> : "+ this.countTr() +" times");
-	 	console.log("<td> : "+ this.countTd() +" times");
-	 	console.log("There are : "+ this.countImg(options) +" different images ; check your folder for the unused one!");
+	 	console.log("<table> : "+ Checker.countTable() +" times");
+	 	console.log("<tr> : "+ Checker.countTr() +" times");
+	 	console.log("<td> : "+ Checker.countTd() +" times");
+	 	console.log("There are : "+ Checker.countImg(options) +" different images ; check your folder for the unused one!");
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("3) Td & img sizes");
 	 	console.info("td should have the same size as their img content");
 	 	console.groupCollapsed("<td> with <img> that size differs : click to open");
-	 	this.displayTdAndImgSize(options);
+	 	Checker.displayTdAndImgSize(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
@@ -193,61 +213,61 @@ Checker = {
 	 	console.group("4) img alt");
 	 	console.info("img should have an alt defined, unless it is a decoration, separator, blank space");
 	 	console.groupCollapsed("<img> with no alt defined : click to open");
-	 	this.checkImgAlt();
+	 	Checker.checkImgAlt();
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("5) td > a style");
 	 	console.info("td with link and text should have style");
 	 	console.groupCollapsed("<td> with style missing : click to open");
-	 	this.checkTdStyle(options);
+	 	Checker.checkTdStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("6) a style");
 	 	console.info("link should have text-decoration and color defined");
 	 	console.groupCollapsed("<a> with style missing : click to open");
-	 	this.checkLinkStyle();
+	 	Checker.checkLinkStyle();
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("7) td > img style");
 	 	console.info("td with img should have no style ; and img should have display:block");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTdImgStyle(options);
+	 	Checker.checkTdImgStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("8) table > tr > td size");
 	 	console.info("all td width sum up should fit the table ; we assume tr is fitting the table");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTableSize(options);
+	 	Checker.checkTableSize(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("9) table");
 	 	console.info("all table should have cellpadding='0' cellspacing='0' border='0'");
 	 	console.groupCollapsed("click to open");
-	 	this.checkTableStyle(options);
+	 	Checker.checkTableStyle(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("10) blank 20px security");
 	 	console.groupCollapsed("click to open");
-	 	this.rwd_blank_security_NL(options);
+	 	Checker.rwd_blank_security_NL(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
 	 	console.group("11) vertical spacer ");
 	 	console.info("td spacer with height less than 20px should have font-size:1px; line-height:1px;");
 	 	console.groupCollapsed("click to open");
-	 	this.checkVerticalSpacer(options);
+	 	Checker.checkVerticalSpacer(options);
 	 	console.groupEnd();
 	 	console.groupEnd();
 
-	},
+	 },
 
-	checkVerticalSpacer : function (options) {
+	 checkVerticalSpacer : function (options) {
 	 	$("td").each(function(index) {
 	 		if ($(this).get(0) != undefined) {
 	 			if ( $(this).get(0).innerHTML == "&nbsp;") {
@@ -255,10 +275,10 @@ Checker = {
 	 				if ($(this).attr("height") != undefined ) {
 	 					if ($(this).attr("height") <= 20) {
 	 						if ($(this).get(0).style.fontSize != "1px") {
-	 							console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
+	 							console.warn("td " + parseInt(index +1, 10) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
 	 						}
 	 						if ($(this).get(0).style.lineHeight != "1px") {
-	 							console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
+	 							console.warn("td " + parseInt(index +1, 10) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
 	 						}
 	 					}
 	 				}
@@ -266,10 +286,10 @@ Checker = {
 	 					if ($(this).height()<= 20) {
 	 						if ($(this).attr("height") <= 20) {
 	 							if ($(this).get(0).style.fontSize != "1px") {
-	 								console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
+	 								console.warn("td " + parseInt(index +1, 10) + " height : " + $(this).attr("height") + " px is missing font-size:1px;");
 	 							}
 	 							if ($(this).get(0).style.lineHeight != "1px") {
-	 								console.warn("td " + parseInt(index +1) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
+	 								console.warn("td " + parseInt(index +1, 10) + " height : " + $(this).attr("height") + " px is missing line-height:1px;");
 	 							}
 	 						}
 	 					}
@@ -278,14 +298,14 @@ Checker = {
 	 			}
 	 		}
 	 	});
-	},
+},
 
-	checkDTD : function(options) {
-		var dtd = {};
-		dtd.dtd = document.doctype;
-		dtd.name = document.doctype.name;
-		dtd.publicId = document.doctype.publicId;
-		dtd.systemId = document.doctype.systemId;
+checkDTD : function(options) {
+	var dtd = {};
+	dtd.dtd = document.doctype;
+	dtd.name = document.doctype.name;
+	dtd.publicId = document.doctype.publicId;
+	dtd.systemId = document.doctype.systemId;
 
 		// html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
 		if ((dtd.name != "html") || (dtd.publicId != "-//W3C//DTD XHTML 1.0 Strict//EN") || (dtd.systemId != "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")) {
@@ -341,13 +361,13 @@ Checker = {
 	 checkTableStyle : function(options) {
 	 	$("table").each(function(index) {
 	 		if ($(this).attr("cellpadding") == undefined || $(this).attr("cellpadding") != 0 ) {
-	 			console.warn("table "+parseInt(index+1)+" : cellpadding missing or not 0.");
+	 			console.warn("table "+parseInt(index +1, 10)+" : cellpadding missing or not 0.");
 	 		}
 	 		if ($(this).attr("cellspacing") == undefined || $(this).attr("cellspacing") != 0 ) {
-	 			console.warn("table "+parseInt(index+1)+" : cellspacing missing or not 0.");
+	 			console.warn("table "+parseInt(index +1, 10)+" : cellspacing missing or not 0.");
 	 		}
 	 		if ($(this).attr("border") == undefined || $(this).attr("border") != 0 ) {
-	 			console.warn("table "+parseInt(index+1)+" : border missing or not 0.");
+	 			console.warn("table "+parseInt(index +1, 10)+" : border missing or not 0.");
 	 		}
 	 	});
 	 },
@@ -390,11 +410,11 @@ Checker = {
 					// td
 					$($(this).children().children().children()).each(function(i) {
 						if ($(this).attr("width") != "" || $(this).attr("width") != undefined) {
-							tds_width += parseInt($(this).attr("width"));
+							tds_width += parseInt($(this).attr("width"), 10);
 						}
 						else {
 							console.warn("attr width not declared ; assume $(selector).width()");
-							tds_width += parseInt($(this).width());
+							tds_width += parseInt($(this).width(), 10);
 						}
 					});
 
@@ -411,11 +431,11 @@ Checker = {
 						$($(this).children()).each(function(j) {
 
 							if ($(this).attr("width") != "" || $(this).attr("width") != undefined || $(this).attr("width") == "100%") {
-								tds_width += parseInt($(this).attr("width"));
+								tds_width += parseInt($(this).attr("width"), 10);
 							}
 							else {
 								console.warn("attr width not declared ; assume $(selector).width()");
-								tds_width += parseInt($(this).width());
+								tds_width += parseInt($(this).width(), 10);
 							}
 						});
 
@@ -426,10 +446,10 @@ Checker = {
 
 					var average = 0;
 					for (var i = 0, l = tables[index]["tr"]["length"]; i < l; i++) {
-						average += parseFloat(tables[index]["tr"]["tr_"+i]);
+						average += parseFloat(tables[index]["tr"]["tr_"+i], 10);
 					}
 
-					tables[index]["td_per_tr_width"] = parseFloat(average / parseInt(tables[index]["tr"]["length"]));
+					tables[index]["td_per_tr_width"] = parseFloat(average / parseInt(tables[index]["tr"]["length"], 10), 10);
 
 				}
 
@@ -477,48 +497,48 @@ Checker = {
 
 	 		var td_tables = [];
 
-	 		//ci($td.attr("width"));
-	 		var children = $(this).children();
-	 		var children_width = 0;
+			//ci($td.attr("width"));
+			var children = $(this).children();
+			var children_width = 0;
 
-	 		$(children).each(function(i) {
+			$(children).each(function(i) {
 
-	 			if ($(this).children().get(0) != undefined) {
-	 				if ($(this).get(0).tagName == "TABLE") {
-	 					if ($(this).attr("width") != $td.attr("width")) {
-	 						children_width += parseInt($(this).attr("width"));
-	 					}
-	 				}
-	 			}
+				if ($(this).children().get(0) != undefined) {
+					if ($(this).get(0).tagName == "TABLE") {
+						if ($(this).attr("width") != $td.attr("width")) {
+							children_width += parseInt($(this).attr("width"), 10);
+						}
+					}
+				}
 
-	 		});
+			});
 
 
-	 		if (!isNaN(children_width) && children_width != 0) {
-	 			var blank_security = parseInt($td.attr("width")) - parseInt(children_width);
+			if (!isNaN(children_width) && children_width != 0) {
+				var blank_security = parseInt($td.attr("width"), 10) - parseInt(children_width, 10);
 
-	 			console.group("For td " + parseInt(index + 1) + ")");
-	 			if (blank_security < 20) {
-	 				console.warn("There are " + blank_security + "px left as blank space security.");
-	 			}
-	 			else if (blank_security == 20) {
-	 				ci("There are " + blank_security + "px left as blank space security.");
-	 			}
-	 			else if (blank_security > 20 && blank_security < 60) {
-	 				console.log("There are " + blank_security + "px left as blank space security. Maybe a little too much");
-	 			}
+				console.group("For td " + parseInt(index +1, 10) + ")");
+				if (blank_security < 20) {
+					console.warn("There are " + blank_security + "px left as blank space security.");
+				}
+				else if (blank_security == 20) {
+					ci("There are " + blank_security + "px left as blank space security.");
+				}
+				else if (blank_security > 20 && blank_security < 60) {
+					console.log("There are " + blank_security + "px left as blank space security. Maybe a little too much");
+				}
 
-	 			else if (blank_security > 60) {
-	 				console.warn("There are " + blank_security + "px left as blank space security. TOO MUCH");
-	 			}
+				else if (blank_security > 60) {
+					console.warn("There are " + blank_security + "px left as blank space security. TOO MUCH");
+				}
 
-	 			console.groupEnd();
-	 		}
+				console.groupEnd();
+			}
 
-	 		//cl(children_width);
+			//cl(children_width);
 
-	 	});
-	},
+		});
+},
 
 	/**
 	 * count the number of <a>
@@ -547,7 +567,7 @@ Checker = {
 	 *
 	 * return {...{param : value}}
 	 */
-	getParmsFromURL : function(url) {
+	 getParmsFromURL : function(url) {
 	 	var parms = {}, pieces, parts, i;
 	 	var hash = url.lastIndexOf("#");
 	 	if (hash !== -1) {
@@ -581,7 +601,7 @@ Checker = {
 	 * check if there are tags not changed, and warn it.
 	 *
 	 */
-	wrongTagTracking : function(options) {
+	 wrongTagTracking : function(options) {
 	 	var url = {};
 	 	var params = options.vars_tracking.split("&");
 	 	var params_tag = {};
@@ -601,7 +621,7 @@ Checker = {
 	 		var rg_cryptedId = new RegExp("cryptedId");
 	 		var rg_hash = new RegExp("^#");
 
-	 		if (	!rg_mailto.test($(this).attr("href")) &&
+	 		if (    !rg_mailto.test($(this).attr("href")) &&
 	 			!rg_include.test($(this).attr("href")) &&
 	 			!rg_hash.test($(this).attr("href")) &&
 	 			!rg_cryptedId.test($(this).attr("href"))) {
@@ -610,31 +630,31 @@ Checker = {
 	 				url = Checker.getParmsFromURL($(this).attr("href"));
 
 	 				if (url.utm_source !== undefined && url.utm_source != params_tag.utm_source) {
-	 					console.warn("link (one-index based) "+ parseInt(index+1) + " has not the good utm_source.");
+	 					console.warn("link (one-index based) "+ parseInt(index +1, 10) + " has not the good utm_source.");
 	 				}
 	 				if (url.utm_medium !== undefined && url.utm_medium != params_tag.utm_medium) {
-	 					console.warn("link (one-index based) "+ parseInt(index+1) + " has not the good utm_medium.");
+	 					console.warn("link (one-index based) "+ parseInt(index +1, 10) + " has not the good utm_medium.");
 	 				}
 	 				if (url.utm_campaign !== undefined && url.utm_campaign != params_tag.utm_campaign) {
-	 					console.warn("link (one-index based) "+ parseInt(index+1) + " has not the good utm_campaign.");
+	 					console.warn("link (one-index based) "+ parseInt(index +1, 10) + " has not the good utm_campaign.");
 	 				}
 	 			}
 	 			else {
 	 				url = Checker.getParmsFromURL($(this).attr("href"));
 
 	 				if ($(this).attr("href").match(rg_vars_tracking).length != 1) {
-	 					console.warn("<a> " + parseInt(index+1) + " has " + $(this).attr("href").match(rg_vars_tracking).length + " Tag Tracking");
+	 					console.warn("<a> " + parseInt(index +1, 10) + " has " + $(this).attr("href").match(rg_vars_tracking).length + " Tag Tracking");
 	 				}
 
 	 				if (url.double_utm_campaign !== undefined || url.double_utm_medium !== undefined || url.double_utm_source !== undefined ) {
-	 					console.warn("<a> " + parseInt(index+1) + " has Tag Tracking in double or repeated !");
+	 					console.warn("<a> " + parseInt(index +1, 10) + " has Tag Tracking in double or repeated !");
 	 				}
 	 			}
 
 	 		}
 
 	 	});
-	},
+},
 
 	/**
 	 * count the number of <a> with attribute target, with the value _blank
@@ -719,17 +739,17 @@ Checker = {
 
 	 		if (warning) {
 	 			if (warning_width == true) {
-	 				console.warn("Width differs or undefined for img " + parseInt(1+index) +", with src : "+ $(this).attr("src") );
+	 				console.warn("Width differs or undefined for img " + parseInt(1+index, 10) +", with src : "+ $(this).attr("src") );
 	 			}
 	 			if (warning_height == true) {
-	 				console.warn("Height differs or undefined for img " + parseInt(1+index) +", with src : "+ $(this).attr("src") );
+	 				console.warn("Height differs or undefined for img " + parseInt(1+index, 10) +", with src : "+ $(this).attr("src") );
 	 			}
 	 			warning = false;
 	 			warning_width = false;
 	 			warning_height = false;
 	 		}
 	 	});
-	},
+},
 
 	/**
 	 * display alt for img
@@ -738,7 +758,7 @@ Checker = {
 	 checkImgAlt : function() {
 	 	$("img").each(function(index)  {
 	 		if ($(this).attr("alt") === "" || $(this).attr("alt") === undefined) {
-	 			console.warn("index " +parseInt(1+index) + " img src : " +$(this).attr("src"));
+	 			console.warn("index " +parseInt(1+index, 10) + " img src : " +$(this).attr("src"));
 	 		}
 	 	});
 	 },
@@ -760,7 +780,7 @@ Checker = {
 	 			cssText = $(this).get(0).style.cssText;
 
 	 			if (!rg_text_decoration.test(cssText)) {
-	 				console.group("index " + parseInt(1+index) + " a : " +$(this).html());
+	 				console.group("index " + parseInt(1+index, 10) + " a : " +$(this).html());
 	 				console.info("Text Decoration missing ?");
 	 				console.warn(cssText);
 	 				console.log(" ");
@@ -768,7 +788,7 @@ Checker = {
 	 			}
 
 	 			if (!rg_color.test(cssText)) {
-	 				console.group("index " + parseInt(1+index) + " a : " +$(this).html());
+	 				console.group("index " + parseInt(1+index, 10) + " a : " +$(this).html());
 	 				console.info("Color");
 	 				console.warn(cssText);
 	 				console.log(" ");
@@ -800,15 +820,15 @@ Checker = {
 
 	 			var fontSize = $(this).parent().get(0).style.fontSize.replace(/px/g, '');
 	 			var lineHeight = $(this).parent().get(0).style.lineHeight.replace(/px/g, '');
-	 			var diff = (parseFloat(lineHeight) - parseFloat(fontSize));
+	 			var diff = (parseFloat(lineHeight, 10) - parseFloat(fontSize, 10));
 	 			if (diff < 2) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
-	 				console.warn("index " + parseInt(1+index)  + " a : " + $(this).html() + " should have a line-height 2px higher than font-size minimum !");
+	 				console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
+	 				console.warn("index " + parseInt(1+index, 10)  + " a : " + $(this).html() + " should have a line-height 2px higher than font-size minimum !");
 	 				console.groupEnd();
 	 			}
 
 	 			if (!rg_font_family.test(cssText)) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 				console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
 	 				console.info("Font Family missing ?");
 	 				console.warn(cssText);
 	 				console.log(" ");
@@ -816,7 +836,7 @@ Checker = {
 	 			}
 
 	 			if (!rg_font_size.test(cssText)) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 				console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
 	 				console.info("Font Size missing ?");
 	 				console.warn(cssText);
 	 				console.log(" ");
@@ -824,7 +844,7 @@ Checker = {
 	 			}
 
 	 			if (!rg_line_height.test(cssText)) {
-	 				console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 				console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
 	 				console.info("Line Height missing ?");
 	 				console.warn(cssText);
 	 				console.log(" ");
@@ -832,7 +852,7 @@ Checker = {
 	 			}
 	 			if (options.strict === true) {
 	 				if (!rg_text_decoration.test(cssText)) {
-	 					console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 					console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
 	 					console.info("Text Decoration missing ?");
 	 					console.warn(cssText);
 	 					console.log(" ");
@@ -840,7 +860,7 @@ Checker = {
 	 				}
 
 	 				if (!rg_color.test(cssText)) {
-	 					console.group("index " + parseInt(1+index)  + " a : " +$(this).html());
+	 					console.group("index " + parseInt(1+index, 10)  + " a : " +$(this).html());
 	 					console.info("Color missing ?");
 	 					console.warn(cssText);
 	 					console.log(" ");
@@ -849,7 +869,7 @@ Checker = {
 	 			}
 	 		}
 	 	});
-	},
+},
 
 	/**
 	 * display if a TD containing an img and link have a no style ; and img have
