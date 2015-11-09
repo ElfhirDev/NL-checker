@@ -29,7 +29,7 @@ sometimes you will have to inspect yourself your code, because :
 
 #### How can I install it ?
 I developed using Firefox only. I don't know how it works in Google Chrome, Safari, Opera, IE, I don't care for it. I will look in the future how to improve the Cross-Browser feature.
-######Version >= 2.1
+######Version >= 2.3
 
 1. Environment
 
@@ -50,6 +50,7 @@ You can manage user script with *GreaseMonkey* here at Firefox url : *about:addo
 3. Settings
 
 The script intends to run on localhost urls :
+- http://127.0.0.1:8091/nl/*
 - http://127.0.0.1:8080/nl/*
 - http://127.0.0.1/nl/*
 - http://localhost/nl/*
@@ -104,6 +105,14 @@ V5 :
 - Propose to download an autocorrected file, nearly perfect.
 
 # Versions
+
+## Version 2.3
+
+- GreaseMonkey user script : Rewrite test because sessionStorage use strings
+
+## Version 2.2
+
+- GreaseMonkey user script : Add location.reload() for reset ; add documentation
 
 ## Version 2.1
 
