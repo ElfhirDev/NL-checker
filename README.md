@@ -66,13 +66,10 @@ Your Newsletters must be in the **nl** folders.
 Copy the file *checker.js* in your computer.
 In this file, copy line between 19 and 36 at the end of the body of your HTML Newsletter, and change the **"NAME/PATH_TO_THE_FILE"** for your case
 
-
-> <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-> <script src="//C:/Users/NAME/PATH_TO_THE_FILE/checker.js"></script>
-
-and :
-
 ```
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//C:/Users/NAME/PATH_TO_THE_FILE/checker.js"></script>
+
 <script>
     // Local file call is better
     
