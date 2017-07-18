@@ -59,6 +59,8 @@ Are the one that I have set up. You should have the same process as me, using a 
 
 I have no other idea right now about other way, so if you wants other URLs to run with, open an issue in the *Github Repository of this project*.
 
+Your Newsletters must be in the **nl** folders.
+
 ######Version < 2.1
 
 Copy the file *checker.js* in your computer.
